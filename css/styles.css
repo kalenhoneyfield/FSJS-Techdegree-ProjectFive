@@ -3,6 +3,8 @@
 ======================================== */
 
 @import url('https://fonts.googleapis.com/css?family=Nunito');
+@import url('https://fonts.googleapis.com/css2?family=Lobster');
+@import url('https://fonts.googleapis.com/css2?family=Gloria+Hallelujah');
 
 * {
 	box-sizing: border-box;
@@ -14,9 +16,12 @@ html, body {
 }
 
 body {
-    font-family: "Nunito", sans-serif;
+    font-family: "Gloria Hallelujah", sans-serif;
     text-align: center;
     background: rgba(235, 235, 235, 0.9);
+    height: 100vh; /* fix the weird bar across the bottom*/
+    
+    /* background: transparent radial-gradient(at calc(var(--mouse-x, 0) * 100%) calc(var(--mouse-y, 0) * 100%), #F0CB35 0%,#C02425 70%,#C02425 100%) no-repeat 0 0; */
 }
 
 header {
@@ -130,7 +135,8 @@ header h1 {
     right: 0;
     bottom: 0;
     left: 0;
-    background: rgba(0, 0, 0, 0.7);
+    z-index: 3;
+    /* background: rgba(0, 0, 0, 0.2); */
 }
 
 .modal {
@@ -162,16 +168,17 @@ header h1 {
     width: 150px;
     margin-top: 35px;
     border-radius: 50%;
+    border: 10px solid olivedrab;
 }
 
 .modal-name {
     margin-bottom: 5px;
 }
 
-.modal-text {
+/* .modal-text {
     color: rgba(50, 50, 50, 0.7);
     margin: 10px;
-}
+} */
 
 .modal hr {
     width: 75%;
@@ -187,8 +194,9 @@ header h1 {
     width: 95%;
     max-width: 420px;
     padding: 10px 15px 15px;;
-    margin: 10px auto auto;
-    background: rgba(255, 255, 255, 1);
+    margin: 1px auto auto;
+    /* background: rgba(255, 255, 255, 1); */
+    background: var(--rgb-value);
     border-radius: 0.25em;
     border: 1px solid rgba(100, 100, 100, 0.3);
 }
@@ -201,7 +209,7 @@ header h1 {
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.9);
     padding: 0.75em 1.5em;
-    background: rgba(0, 0, 0, 0.8);
+    /* background: rgba(0, 0, 0, 0.8); */
     border-radius: 0.35em;
     transition: .4s ease-out;
     outline: none;
@@ -258,6 +266,158 @@ header h1 {
 
     .btn:hover {
         background: rgba(255, 255, 255, 1);
-        color: rgba(25, 25, 25, 1); 
+        /* color: rgba(25, 25, 25, 1);  */
+        color:  var(--rgb-value); 
+    }
+}
+
+/* ===================================== 
+   Addtional or adjusted styles
+  Styles added 
+======================================== */
+
+.hidden {
+    display: none !important;
+}
+
+.btn {
+    text-shadow: 1px 1px 2px black;
+}
+
+.btn:hover {
+    text-shadow: 2px 2px 2px black;
+}
+
+.modal-text {
+    mix-blend-mode: difference;
+    color:white;
+    margin: 10px;
+}
+
+.card:hover{
+    box-shadow: 5px 5px 8px black;
+}
+
+/* The below CSS was inspired by from https://www.w3schools.com/w3css/4/w3.css */
+.leftIntro {
+    animation: inFromLeft 0.4s
+}
+
+@keyframes inFromLeft {
+    from {
+        left: -300px;
+        opacity: 0;
+    }
+
+    to {
+        left: 0;
+        opacity: 1;
+    }
+}
+
+.leftOutro {
+    animation: outToLeft 0.4s
+}
+
+@keyframes outToLeft {
+    from {
+        left: -0;
+        opacity: 1;
+        transform: rotate(-30deg);
+    }
+
+    to {
+        left: -800px;
+        opacity: 0;
+        transform: rotate(-180deg);
+    }
+}
+
+.rightIntro {
+    animation: inFromRight 0.4s
+}
+
+@keyframes inFromRight {
+    from {
+        right: -300px;
+        opacity: 0;
+    }
+
+    to {
+        right: 0;
+        opacity: 1;
+    }
+}
+
+.rightOutro {
+    animation: outToRight 0.4s
+}
+
+@keyframes outToRight {
+    from {
+        right: 0;
+        opacity: 1;
+        transform: rotate(30deg);
+    }
+
+    to {
+        right: -800px;
+        opacity: 0;
+        transform: rotate(180deg);
+    }
+}
+
+.fromTopIntro {
+    animation: inFromTop 0.6s
+}
+
+@keyframes inFromTop {
+    0% {
+        top: -300px;
+        opacity: 0;
+    }
+
+    80% {
+        top: 20px;
+        opacity: 0.8;
+    }
+
+    100% {
+        top: 0;
+        opacity: 1;
+    }
+}
+
+.toTopOutro {
+    animation: outToTop 0.8s
+}
+
+@keyframes outToTop {
+    0% {
+        top: 0;
+        opacity: 1;
+    }
+
+    100% {
+        top: -3000px;
+        opacity: 0;
+    }
+}
+
+.toBottomOutro {
+    animation: outToBottom 0.8s
+}
+
+@keyframes outToBottom {
+    0% {
+        top: 0;
+        opacity: 1;
+        transform: scale(1) 
+    }
+
+    100% {
+        top: 600px;
+        opacity: 0.2;
+        transform: scale(0.1) rotate(180deg)
     }
 }
