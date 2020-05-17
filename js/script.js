@@ -74,6 +74,7 @@ function buildCard(record){
                             <p class="card-text cap">${record.location.city}, ${record.location.state}</p>
                         </div>`
     card.innerHTML = cardData
+    card.querySelector('.card-name').style.color = record.color
     card.addEventListener('click', ()=> {
         buildModal(record, 'fromTopIntro')
     })
