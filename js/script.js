@@ -10,7 +10,7 @@ modal.classList.add('modal-container', 'hidden') //keep it hidden, keep it safe
 document.body.append(modal)
 
 const searchContainer = document.querySelector('.search-container')
-const searchForm = document.createElement('form')
+const searchForm = document.createElement('div')
 const searchInput = document.createElement('input')
 const searchSubmit = document.createElement('input')
 
@@ -26,34 +26,10 @@ searchContainer.append(searchForm)
 const root = document.documentElement;
 
 
-const mouseXY = {
-    mouseX: 0,
-    mouseY: 0,
-}
-
-const rando = 'https://randomuser.me/api/?results=12'
+const rando = 'https://randomuser.me/api/?results=12&nat=us,gb'
 // const rando = 'https://randomuser.me/api/'
 
-
-/**
- * //all results on the page need
- * image == results[x].picture .large .medium .thumbnail
- * First and last name == results[x].name .first .last .title
- * email == results[x].email
- * city or location == results[x].location .city .state .country 
- * 
- * //each modal will need
- * image == results[x].picture .large .medium .thumbnail
- * name == results[x].name .first .last .title
- * email == results[x].email
- * city or location == results[x].location .city .state .country
- * cell number == results[x] .cell .phone
- * detailed address, including street name and number, state or country, and post code == results[x].location .city .state .country .postcode .street.name .street.number
- * birthday == results[x].dob.date //may need to convert this
- * 
- */
-
-let employeeArray = []
+let employeeArray = [] //initialize the array we will use to store all our employee records
 
 
 //based on Guil's demo in TreeHouse
@@ -74,13 +50,13 @@ fetchData(rando)
         })
         return data.results
     })
-    // .then(data => console.log(data))
     .then( data => showEmployees(data))
 
 //roll through each item and then add it to an array for later use
 function showEmployees(jsonArray){
     jsonArray.forEach(record => {
-        gallery.append( buildCard(record) )
+        const card = buildCard(record)
+        gallery.append( card )
         employeeArray.push(record)
     })
 }
@@ -108,7 +84,7 @@ function buildCard(record){
 //Since we're being fancy we'll need to know which direction to bring in the new modal
 function buildModal(record, direction){ 
     const index = employeeArray.indexOf(record) //so we can find the next one
-    gallery.style.filter = 'blur(2px)'
+    gallery.style.filter = 'blur(1px) drop-shadow(2px 2px 2px black)'
     modal.innerHTML = ''
     const modalData = `<div class="modal">
                         <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
@@ -132,7 +108,6 @@ function buildModal(record, direction){
     modal.innerHTML = modalData
     modal.classList.remove('hidden') //lets bring it to the screen
     
-
     addRemoveAnimation(modal, direction) //lets get kinda fancy
 
     const modalBox = document.querySelector('.modal')
@@ -140,11 +115,6 @@ function buildModal(record, direction){
 
     const modalImg = document.querySelector('.modal-img')
     modalImg.style.border = '10px solid ' + record.color //if I could figure out how to put a border around the border...
-
-    const buttonText = document.querySelectorAll('.btn')
-    buttonText.forEach(elem => {
-       elem.style.color = record.color
-    })
 
     const modalXbutton = document.getElementById('modal-close-btn')
     modalXbutton.addEventListener('click', () =>{
@@ -158,7 +128,7 @@ function buildModal(record, direction){
     modalNextbutton.addEventListener('click', () =>{
         addRemoveAnimation(modal,'rightOutro', () => {
             modal.classList.add('hidden')
-            // const nextIndex = findIndex( index + 1 )
+
             const nextIndex = findNextVisiable(index, 1)
             
             buildModal(employeeArray[nextIndex], 'leftIntro')
@@ -170,21 +140,25 @@ function buildModal(record, direction){
     modalPrvbutton.addEventListener('click', () =>{
         addRemoveAnimation(modal,'leftOutro', () => {
             modal.classList.add('hidden')
-            // const previousIndex = findIndex( index - 1 ) 
+
             const previousIndex = findNextVisiable(index, -1)
             
             buildModal(employeeArray[previousIndex], 'rightIntro')
         })
-        
     })
 
-    const style = window.getComputedStyle(modalBox)
-    // document.body.style.backgroundImage = style.backgroundImage
-    bodyColor(style.backgroundImage)
-
+    document.body.style.backgroundImage = `radial-gradient(circle at calc(${(record.coords.x + 50) / innerWidth} * 100%) calc(${(record.coords.y + 50) / innerHeight} * 100%), #FFFFFF 0%, ${record.color} 50% )`
+    root.style.setProperty('--rgb-value', record.color)
 }
 
 searchInput.addEventListener('keyup', (e)=>{
+    performSearch(e)
+})
+searchInput.addEventListener('blur', (e)=>{
+    performSearch(e)
+})
+
+function performSearch(e){
     if(employeeArray.length < 1){ //just in case the API hasn't reponded yet or a problem occurred, lets not attempt to query the DOM
         console.error('not ready yet')
         return null
@@ -200,26 +174,27 @@ searchInput.addEventListener('keyup', (e)=>{
             name.parentElement.parentElement.classList.remove('hidden')
         }
     })
+}
 
-})
-
-//on mouse move get the X and Y coords and then dynamically set the bg
-//this is cool.. but it causes weirdness on the cards... :-(
-
-// document.body.addEventListener('mousemove', (e) => {
-//     let x = e.clientX / innerWidth;
-//     let y = e.clientY / innerHeight;
- 
-//     root.style.setProperty('--mouse-x', x);
-//     root.style.setProperty('--mouse-y', y);
-// });
-
+/**
+ * I'm sure the following will be fairly brutal on some CPUs, I'm sorry if you are reviewing this on a ChromeBook.
+ * but this allows for the simpliest approach I could figure out how to
+ * insure these values were accuarate if the page was resized, or if someone used the search box
+ * 
+ * These values are used to set the redial gradient behind each card's img
+ */
 document.body.addEventListener('mousemove', (e) => {
-    mouseXY.mouseX = e.clientX 
-    mouseXY.mouseY = e.clientY
+    const faces = document.querySelectorAll('.card-img')
+    faces.forEach((face, idx) => {
+        const coords = face.getBoundingClientRect()
+        employeeArray[idx].coords = coords
+    })
+    // mouseXY.mouseX = e.clientX 
+    // mouseXY.mouseY = e.clientY
 });
 
-function formatDateForHumans(dateString){ //While ISO formated dates are cool... user testing reveals mixed results
+//While ISO formated dates are cool... user testing reveals mixed results
+function formatDateForHumans(dateString){ 
     const date = new Date(dateString)
     let year = date.getFullYear()
 
@@ -232,20 +207,6 @@ function formatDateForHumans(dateString){ //While ISO formated dates are cool...
     return `${month}/${day}/${year}` //US based date format
   }
 
-
-//get and set a dynamic backgound based on user selected
-function bodyColor(styleString){
-    //the ugliest little regex
-    const regex = new RegExp(/^(\w+\-\w+\(\w+\s\w+\s\d\d\%\s\d\d\%\,\s\w+\(\d{3}, \d{3}, \d{3}\),\s)(rgb\(\d\d?\d?,\s\d\d?\d?,\s\d\d?\d?)\)/)
-    const rgb = styleString.replace(regex, '$2')
-    const locX = mouseXY.mouseX / innerWidth
-    const locY = mouseXY.mouseY / innerHeight
-    root.style.setProperty('--rgb-value', rgb)
-
-    document.body.style.backgroundImage = `radial-gradient(circle at calc(${locX} * 100%) calc(${locY} * 100%), #FFFFFF 0%, ${rgb} 30% )`
-
-    return null
-}
 
 //just for fun lets give everyone a color derived from their birthday
 function recordToBackgroundColorConverter(record){ 
@@ -269,13 +230,13 @@ function findIndex(val){
 /*
 Find and return the next visiable card, 
 if the user has narrowed down the employees to view, 
-lets allow them to review just those cards
+lets allow them to review just those cards/modals
 */
 function findNextVisiable(val, increment){
     val = findIndex(val + increment)
     const nameList = document.querySelectorAll('.card-name')
     for(val; nameList[val].parentElement.parentElement.classList.contains('hidden'); val = findIndex(val + increment)){
-        console.log(`It ins't ${nameList[val].innerText}`)
+        console.log(`It isn't ${nameList[val].innerText}`)
     }
 
     console.log(`It is ${nameList[val].innerText}`)

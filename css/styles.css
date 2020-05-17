@@ -80,6 +80,7 @@ header h1 {
     width: 100%;
     max-width: 1200px;
     margin: auto;
+    transition: 0.2s ease-in;
 }
   
 .card {
@@ -162,6 +163,7 @@ header h1 {
     outline: none;
     border-radius: 0.25em;
     border: 1px solid rgba(50, 50, 50, 0.3);
+    transition: 0.4s ease-in-out;
 }
 
 .modal-img {
@@ -207,7 +209,7 @@ header h1 {
     cursor: pointer;
     font-size: 0.85em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.9);
+    /* color: rgba(255, 255, 255, 0.9); */
     padding: 0.75em 1.5em;
     /* background: rgba(0, 0, 0, 0.8); */
     border-radius: 0.35em;
@@ -280,8 +282,19 @@ header h1 {
     display: none !important;
 }
 
+.header-text-container {
+    mix-blend-mode: difference;
+}
+
+.modal-close-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 1px 1px 1px gray;
+    color: var(--rgb-value);
+}
+
 .btn {
     text-shadow: 1px 1px 2px black;
+    color: var(--rgb-value)
 }
 
 .btn:hover {
@@ -294,7 +307,7 @@ header h1 {
     margin: 10px;
 }
 
-.card:hover{
+.card:hover {
     box-shadow: 5px 5px 8px black;
 }
 
@@ -415,9 +428,13 @@ header h1 {
         transform: scale(1) 
     }
 
+    20% {
+        top: -600px;
+    }
+
     100% {
         top: 600px;
         opacity: 0.2;
-        transform: scale(0.1) rotate(180deg)
+        transform: scale(0.1) rotate(180deg);
     }
 }
