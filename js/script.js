@@ -27,7 +27,6 @@ const root = document.documentElement;
 
 
 const rando = 'https://randomuser.me/api/?results=12&nat=us,gb'
-// const rando = 'https://randomuser.me/api/'
 
 let employeeArray = [] //initialize the array we will use to store all our employee records
 
@@ -39,7 +38,7 @@ function fetchData(url){
              .catch(err => console.log(err))
    }
 
-//lets featch the data then adjust certain bits of it so that we have neat and tidy packages to deal with
+//lets fetch the data then adjust certain bits of it so that we have neat and tidy packages to deal with
 fetchData(rando)
     .then(data => {
         data.results.map(record => {
@@ -52,7 +51,7 @@ fetchData(rando)
     })
     .then( data => showEmployees(data))
 
-//roll through each item and then add it to an array for later use
+//roll through each item create a card for it, add it to the DOM, and then add it to an array for later use
 function showEmployees(jsonArray){
     jsonArray.forEach(record => {
         const card = buildCard(record)
@@ -62,6 +61,7 @@ function showEmployees(jsonArray){
 }
 
 //Build an on screen card
+//assign event handler to it before handing it back
 function buildCard(record){ 
     const card = document.createElement('div')
     card.classList.add('card')
@@ -81,7 +81,7 @@ function buildCard(record){
     return card
 }
 
-//which each record is selected, zero out any previous modal data, then build the desired modal and display it
+//when each record is selected, zero out any previous modal data, then build the desired modal and display it
 //Since we're being fancy we'll need to know which direction to bring in the new modal
 function buildModal(record, direction){ 
     const index = employeeArray.indexOf(record) //so we can find the next one
@@ -115,7 +115,7 @@ function buildModal(record, direction){
     modalBox.style.backgroundImage = `radial-gradient(circle at 50% 20%, #FFFFFF, ${record.color} )` //best I could figure out for the border border
 
     const modalImg = document.querySelector('.modal-img')
-    modalImg.style.border = '10px solid ' + record.color //if I could figure out how to put a border around the border...
+    modalImg.style.border = `10px solid ${record.color}` //if I could figure out how to put a border around the border...
 
     const modalXbutton = document.getElementById('modal-close-btn')
     modalXbutton.addEventListener('click', () =>{
@@ -148,10 +148,13 @@ function buildModal(record, direction){
         })
     })
 
+    //center the radial gradient right behind the selected employee's image
     document.body.style.backgroundImage = `radial-gradient(circle at calc(${(record.coords.x + 50) / innerWidth} * 100%) calc(${(record.coords.y + 50) / innerHeight} * 100%), #FFFFFF 0%, ${record.color} 50% )`
     root.style.setProperty('--rgb-value', record.color)
 }
 
+//since we're not requerying the api each time, we don't really need a "search button"
+//lets just listen for keyups and bur events to perform the search
 searchInput.addEventListener('keyup', (e)=>{
     performSearch(e)
 })
@@ -159,15 +162,16 @@ searchInput.addEventListener('blur', (e)=>{
     performSearch(e)
 })
 
+//loop through all the items and either hide or unhide them based on the search 
 function performSearch(e){
     if(employeeArray.length < 1){ //just in case the API hasn't reponded yet or a problem occurred, lets not attempt to query the DOM
         console.error('not ready yet')
         return null
     }
-    let searchQuery = (e.target.value).toLowerCase()
+    let searchQuery = (e.target.value).toLowerCase() //allow the user to search case insensitive 
     const nameList = document.querySelectorAll('.card-name')
     nameList.forEach(name => {
-        const nameTest = name.innerText.toLowerCase()
+        const nameTest = name.innerText.toLowerCase() //allow the user to search case insensitive
         if( !nameTest.includes(searchQuery) ){
             name.parentElement.parentElement.classList.add('hidden')
         }
@@ -182,7 +186,7 @@ function performSearch(e){
  * but this allows for the simpliest approach I could figure out how to
  * insure these values were accuarate if the page was resized, or if someone used the search box
  * 
- * These values are used to set the redial gradient behind each card's img
+ * These values are used to set the radial gradient behind each card's img
  */
 document.body.addEventListener('mousemove', (e) => {
     const faces = document.querySelectorAll('.card-img')
@@ -190,8 +194,6 @@ document.body.addEventListener('mousemove', (e) => {
         const coords = face.getBoundingClientRect()
         employeeArray[idx].coords = coords
     })
-    // mouseXY.mouseX = e.clientX 
-    // mouseXY.mouseY = e.clientY
 });
 
 //While ISO formated dates are cool... user testing reveals mixed results
@@ -224,7 +226,7 @@ function recordToBackgroundColorConverter(record){
 Figure out what the index value should be so we don't over run or under run our array
 */
 function findIndex(val){
-     const total = employeeArray.length - 1 //arrays start at 0
+    const total = employeeArray.length - 1 //arrays start at 0
     return val > total ? 0 : val < 0 ? total : val //If the value is greater than the total, return 0, less than the total return total, otherwise return the value
 }
 
@@ -239,7 +241,6 @@ function findNextVisiable(val, increment){
     for(val; nameList[val].parentElement.parentElement.classList.contains('hidden'); val = findIndex(val + increment)){
         console.log(`It isn't ${nameList[val].innerText}`)
     }
-
     console.log(`It is ${nameList[val].innerText}`)
     return val
 }
@@ -250,16 +251,15 @@ This is the site that the animate.css is now hosted at
 Used in Project Four and adapted here, since we don't have animate.css
 */
 const addRemoveAnimation = (elem, className, callback) => 
-    new Promise((resolve, reject) => {
-        elem.classList.add(className) 
+    new Promise((resolve, reject) => { //use a promise so we don't have to stop everything
+        elem.classList.add(className)  //add the class we have CSS for that has an animation
 
-        const hasAnimationEnded = () => {
-            elem.classList.remove(className)
-            elem.removeEventListener('animationend', hasAnimationEnded)
+        const hasAnimationEnded = () => { //animation ened?
+            elem.classList.remove(className) //remove the class
+            elem.removeEventListener('animationend', hasAnimationEnded) //remove the event listener
             
             callback ? callback() : false //if we have a callback, run it, otherwise ignore
-            resolve('Animation ended')
+            resolve('Animation ended') //resolve the promise
         }
-
-        elem.addEventListener('animationend', hasAnimationEnded)
+        elem.addEventListener('animationend', hasAnimationEnded) //add an event handler to listen for when the animation has ended
 });
